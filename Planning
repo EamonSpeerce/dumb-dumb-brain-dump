@@ -1,0 +1,11 @@
+Features:
+- Options for repeat period (Months, Weeks)
+- Grouping/Sorting
+  - Drag to rearrange
+- Enable, Disable, Pause, Skip iterations, End Date
+- Separate into different pages (Add, Edit, View)
+- Task grouping
+- Visual time remaining indicator on border
+- Import/Export database
+- Widget for tasks due Today
+- Add icon/image for task
