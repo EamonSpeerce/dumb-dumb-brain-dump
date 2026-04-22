@@ -1,5 +1,5 @@
 Features:
-- Options for repeat period (Months, Weeks)
+- Options for repeat period (Months, Weeks) - done
 - Grouping/Sorting
   - Drag to rearrange
 - Enable, Disable, Pause, Skip iterations, End Date
@@ -9,3 +9,5 @@ Features:
 - Import/Export database
 - Widget for tasks due Today
 - Add icon/image for task
+- Tasks as bubbles, rise as deadline approaches, pop to complete 
+- One off tasks
