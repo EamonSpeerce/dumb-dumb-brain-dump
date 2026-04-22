@@ -1,4 +1,4 @@
-package com.example.myapplication.View.screens
+package com.example.dumb_dumb_brain_dump.View.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -15,14 +15,17 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.LibraryAddCheck
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +37,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,12 +48,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.myapplication.Domain.Task
-import com.example.myapplication.View.TaskViewModel
+import com.example.dumb_dumb_brain_dump.Data.TimeUtils
+import com.example.dumb_dumb_brain_dump.Data.TimeUtils.properNoun
+import com.example.dumb_dumb_brain_dump.Domain.Task
+import com.example.dumb_dumb_brain_dump.View.TaskViewModel
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +62,9 @@ fun TaskScreen(taskViewModel: TaskViewModel) {
 
     var taskName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var days by remember { mutableStateOf(1) }
+    var periodCountText by remember { mutableStateOf("1") }
+    var periodCount by remember { mutableIntStateOf(1) }
+    var selectedUnit by remember { mutableStateOf(ChronoUnit.DAYS) }
     val taskList by taskViewModel.tasks.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -78,7 +85,6 @@ fun TaskScreen(taskViewModel: TaskViewModel) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Input card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -88,11 +94,10 @@ fun TaskScreen(taskViewModel: TaskViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Task name + description stacked in one column
                     Column(modifier = Modifier.weight(2f)) {
                         OutlinedTextField(
                             value = taskName,
@@ -113,40 +118,59 @@ fun TaskScreen(taskViewModel: TaskViewModel) {
                         )
                     }
 
-                    // Number of days field
-                    OutlinedTextField(
-                        value = days.toString(),
-                        onValueChange = { input ->
-                            val parsed = input.toIntOrNull()
-                            if (parsed != null && parsed in 1..365) days = parsed
-                        },
-                        label = { Text("Repeat Period (Days)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    Column(
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    )
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = periodCountText,
+                            onValueChange = { input ->
+                                // Always accept the raw text so backspace/empty works naturally
+                                periodCountText = input.filter { it.isDigit() }
 
+                                // Only update the real value when it parses to a valid range
+                                val parsed = periodCountText.toIntOrNull()
+                                if (parsed != null && parsed in 1..999) periodCount = parsed
+                            },
+                            label = { Text("Repeat Every") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true
+                        )
+                        PeriodUnitSelector(
+                            selected = selectedUnit,
+                            onSelected = { selectedUnit = it }
+                        )
+                    }
+                }
+                Row() {
+                    IconButton(
+                        onClick = {
+                            if (taskName.isNotBlank()) {
+                                taskViewModel.addTask(
+                                    name = taskName,
+                                    desc = description,
+                                    repeatPeriod = TimeUtils.periodToMillis(periodCount, selectedUnit)
+                                )
+                                taskName = ""
+                                description = ""
+                                periodCount = 1
+                                selectedUnit = ChronoUnit.DAYS
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
 
-                    IconButton(onClick = {
-                        if (taskName.isNotBlank()) {
-                            taskViewModel.addTask(
-                                name = taskName,
-                                desc = description,
-                                repeatPeriod = daysToMillis(days)
-                            )
-                            taskName = ""
-                            description = ""
-                            days = 1
-                        }
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Edit")
+                    ) {
+                        Icon(Icons.Default.LibraryAddCheck, contentDescription = "Add Task")
                     }
                 }
             }
 
             HorizontalDivider(color = Color.Black, thickness = 2.dp)
 
-            // Task grid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -156,6 +180,32 @@ fun TaskScreen(taskViewModel: TaskViewModel) {
                 items(items = taskList, key = { it.id }) { task ->
                     TaskCard(task = task, taskViewModel = taskViewModel)
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PeriodUnitSelector(
+    selected: ChronoUnit,
+    onSelected: (ChronoUnit) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = selected.toString(),
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier.menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            TimeUtils.PERIOD_UNITS.forEach { unit ->
+                DropdownMenuItem(
+                    text = { Text(unit.toString().properNoun()) },
+                    onClick = { onSelected(unit); expanded = false }
+                )
             }
         }
     }
@@ -173,7 +223,6 @@ fun TaskCard(task: Task, taskViewModel: TaskViewModel) {
         else Duration.between(Instant.now(), task.nextActionDeadline).toDays()
     }
 
-    val repeatDays = task.repeatPeriod / (24L * 60 * 60 * 1000)
     val borderColor = if (task.isPastActionDeadline) Color.Red else Color.Black
 
     Card(
@@ -186,7 +235,6 @@ fun TaskCard(task: Task, taskViewModel: TaskViewModel) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Title row with edit/delete icons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -242,15 +290,7 @@ fun TaskCard(task: Task, taskViewModel: TaskViewModel) {
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Every $repeatDays Days",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                val formatter = DateTimeFormatter
-                    .ofPattern("EEEE MMMM d")
-                    .withZone(ZoneId.systemDefault())
-                Text(
-
-                    text = "Last completed: ${formatter.format(task.lastCompletedAction)}",
+                    text = TimeUtils.millisToReasonableTimeLabel(task.repeatPeriod),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
@@ -258,14 +298,11 @@ fun TaskCard(task: Task, taskViewModel: TaskViewModel) {
                         daysUntilDeadline == null -> "Not started yet"
                         daysUntilDeadline < 0 -> "${-daysUntilDeadline} days overdue"
                         daysUntilDeadline == 0L -> "Due today"
-                        else -> "Next Deadline in $daysUntilDeadline days"
+                        else -> "Next deadline in $daysUntilDeadline days"
                     },
                     style = MaterialTheme.typography.bodySmall.copy(
                         color = if (task.isPastActionDeadline) Color.Red else Color.Unspecified
                     )
-                )
-                Text(
-                    text = "${task.currentStreak}x streak"
                 )
             }
 
@@ -305,8 +342,4 @@ fun TaskCard(task: Task, taskViewModel: TaskViewModel) {
             }
         }
     }
-}
-
-private fun daysToMillis(days: Int): Long {
-    return days.toLong() * 24 * 60 * 60 * 1000
 }

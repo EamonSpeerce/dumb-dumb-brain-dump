@@ -1,6 +1,5 @@
-package com.example.myapplication.ui.theme
+package com.example.dumb_dumb_brain_dump.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

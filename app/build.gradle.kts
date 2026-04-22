@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapplication"
+    namespace = "com.example.dumb_dumb_brain_dump"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.example.DumbDumbBrainDump"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

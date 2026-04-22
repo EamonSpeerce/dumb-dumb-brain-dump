@@ -1,14 +1,14 @@
-package com.example.myapplication.View
+package com.example.dumb_dumb_brain_dump.View
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
-import com.example.myapplication.Data.DateConverter.isSameDayAs
-import com.example.myapplication.Data.TaskDataRepository
-import com.example.myapplication.Data.TaskDatabase
-import com.example.myapplication.Domain.AddTask
-import com.example.myapplication.Domain.Task
+import com.example.dumb_dumb_brain_dump.Data.TimeUtils.isSameDayAs
+import com.example.dumb_dumb_brain_dump.Data.TaskDataRepository
+import com.example.dumb_dumb_brain_dump.Data.TaskDatabase
+import com.example.dumb_dumb_brain_dump.Domain.AddTask
+import com.example.dumb_dumb_brain_dump.Domain.Task
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

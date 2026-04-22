@@ -1,4 +1,4 @@
-package com.example.myapplication.Domain
+package com.example.dumb_dumb_brain_dump.Domain
 
 import java.time.Instant
 import java.util.ArrayDeque

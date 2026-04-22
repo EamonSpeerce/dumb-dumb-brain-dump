@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.theme
+package com.example.dumb_dumb_brain_dump.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

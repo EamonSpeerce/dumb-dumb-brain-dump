@@ -1,4 +1,4 @@
-package com.example.myapplication.Data
+package com.example.dumb_dumb_brain_dump.Data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

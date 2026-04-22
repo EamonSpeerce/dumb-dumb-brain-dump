@@ -1,7 +1,7 @@
-package com.example.myapplication.Data
+package com.example.dumb_dumb_brain_dump.Data
 
-import com.example.myapplication.Domain.Task
-import com.example.myapplication.Domain.TaskRepository
+import com.example.dumb_dumb_brain_dump.Domain.Task
+import com.example.dumb_dumb_brain_dump.Domain.TaskRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

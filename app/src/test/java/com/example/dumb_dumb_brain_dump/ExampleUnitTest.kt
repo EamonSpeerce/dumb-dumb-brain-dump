@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.dumb_dumb_brain_dump
 
 import org.junit.Test
 
